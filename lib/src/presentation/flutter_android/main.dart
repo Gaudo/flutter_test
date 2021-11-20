@@ -30,14 +30,12 @@ class SaAndroidApp extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 title: Text('Social App', style: GoogleFonts.pacifico()),
               ),
-              body: SafeArea(
-                child: SaMainView(
-                  stories: SaStories(
-                    height: 100,
-                  ),
-                  post: SaPost(),
-                  loadPages: (page) {},
+              body: SaMainView(
+                stories: SaStories(
+                  height: 100,
                 ),
+                postBuilder: (dynamic a) => SaPost(),
+                loadPages: (page) {},
               ),
             );
           }
@@ -126,13 +124,13 @@ class SaPost extends StatelessWidget {
 class SaMainView extends StatefulWidget {
   final void Function(int) loadPages;
   final Widget stories;
-  final Widget post;
+  final Widget Function(dynamic something) postBuilder;
 
   const SaMainView({
     Key? key,
     required this.loadPages,
     required this.stories,
-    required this.post,
+    required this.postBuilder,
   }) : super(key: key);
 
   @override
@@ -155,25 +153,27 @@ class _SaMainViewState extends State<SaMainView> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: controller,
-      itemCount: 50,
-      itemBuilder: (context, elem) {
-        if (elem == 0) {
-          return Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    width: 1,
-                    color: Colors.grey.shade200,
+    return SafeArea(
+      child: ListView.builder(
+        controller: controller,
+        itemCount: 50,
+        itemBuilder: (context, elem) {
+          if (elem == 0) {
+            return Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 1,
+                      color: Colors.grey.shade200,
+                    ),
                   ),
                 ),
-              ),
-              child: widget.stories);
-        }
+                child: widget.stories);
+          }
 
-        return widget.post;
-      },
+          return widget.postBuilder(elem);
+        },
+      ),
     );
   }
 }
