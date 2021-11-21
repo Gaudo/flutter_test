@@ -24,20 +24,34 @@ class SaAndroidApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) {
-            return Scaffold(
-              appBar: AppBar(
-                shadowColor: Colors.transparent,
-                backgroundColor: Colors.transparent,
-                title: Text('Social App', style: GoogleFonts.pacifico()),
+            return SaHome(
+              loadPages: (index) {},
+              loadStories: () {},
+              postBuilder: (state) => SaPost(
+                state,
+                onSelectName: (state) {},
+                onSelectProfile: (state) {},
+                onBookmark: (String state) {},
+                onFollow: (String state) {},
+                onLike: (String state) {},
+                onSelectComments: (String state) {},
+                onSelectMore: (String state) {},
+                onSelectOptions: (String state) {},
+                onSelectViews: (String state) {},
+                onShare: (String state) {},
               ),
-              body: SaMainView(
-                stories: SaStories(
-                  height: 100,
-                ),
-                postBuilder: (dynamic a) => SaPost(),
-                loadPages: (page) {},
+              storyBuilder: (state) => SaStory(
+                state,
+                onSelect: (String state) {},
               ),
+              onMediaTap: () {},
+              onProfileTap: () {},
+              onSearchTap: () {},
+              onStoreTap: () {},
             );
+          },
+          '/search': (context) {
+            return SaSearch();
           }
         },
       ),
@@ -45,45 +59,42 @@ class SaAndroidApp extends StatelessWidget {
   }
 }
 
-class SaStories extends StatelessWidget {
-  final double height;
-
-  const SaStories({
-    Key? key,
-    required this.height,
-  }) : super(key: key);
+class SaSearch extends StatelessWidget {
+  const SaSearch({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: height * 0.05),
-      child: SizedBox(
-        height: height * 0.9,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 5,
-          itemBuilder: (context, elem) => Padding(
-            padding: EdgeInsets.all(0),
-            child: Container(
-              width: 0.9 * height,
-              height: 0.9 * height,
-              margin: EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                color: Colors.red.shade400,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(height * 0.9),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    return Container();
   }
 }
 
 class SaPost extends StatelessWidget {
-  const SaPost({Key? key}) : super(key: key);
+  final String state;
+  final void Function(String state) onSelectName;
+  final void Function(String state) onSelectProfile;
+  final void Function(String state) onLike;
+  final void Function(String state) onShare;
+  final void Function(String state) onBookmark;
+  final void Function(String state) onSelectViews;
+  final void Function(String state) onSelectMore;
+  final void Function(String state) onSelectComments;
+  final void Function(String state) onFollow;
+  final void Function(String state) onSelectOptions;
+
+  const SaPost(
+    this.state, {
+    Key? key,
+    required this.onSelectName,
+    required this.onSelectProfile,
+    required this.onLike,
+    required this.onShare,
+    required this.onBookmark,
+    required this.onSelectViews,
+    required this.onSelectMore,
+    required this.onSelectComments,
+    required this.onFollow,
+    required this.onSelectOptions,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -121,45 +132,69 @@ class SaPost extends StatelessWidget {
   }
 }
 
-class SaMainView extends StatefulWidget {
-  final void Function(int) loadPages;
-  final Widget stories;
-  final Widget Function(dynamic something) postBuilder;
+class SaStory extends StatelessWidget {
+  final String state;
+  final void Function(String state) onSelect;
 
-  const SaMainView({
+  const SaStory(
+    this.state, {
     Key? key,
-    required this.loadPages,
-    required this.stories,
-    required this.postBuilder,
+    required this.onSelect,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return _SaMainViewState();
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Container(
+        decoration: ShapeDecoration(
+          color: Colors.red.shade400,
+          shape: StadiumBorder(),
+        ),
+      ),
+    );
   }
 }
 
-class _SaMainViewState extends State<SaMainView> {
-  late int currentPage;
-  late ScrollController controller;
+class SaHome extends StatelessWidget {
+  final void Function(int) loadPages;
+  final void Function() loadStories;
 
-  @override
-  void initState() {
-    super.initState();
+  final Widget Function(String something) postBuilder;
+  final Widget Function(String something) storyBuilder;
 
-    currentPage = 0;
-    controller = ScrollController();
-  }
+  final void Function() onProfileTap;
+  final void Function() onSearchTap;
+  final void Function() onMediaTap;
+  final void Function() onStoreTap;
+
+  const SaHome({
+    Key? key,
+    required this.loadPages,
+    required this.storyBuilder,
+    required this.postBuilder,
+    required this.loadStories,
+    required this.onProfileTap,
+    required this.onSearchTap,
+    required this.onMediaTap,
+    required this.onStoreTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView.builder(
-        controller: controller,
-        itemCount: 50,
-        itemBuilder: (context, elem) {
-          if (elem == 0) {
-            return Container(
+    return Scaffold(
+      appBar: AppBar(
+        shadowColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        title: Text('Social App', style: GoogleFonts.pacifico()),
+      ),
+      body: SafeArea(
+        child: ListView.builder(
+          itemCount: 50,
+          itemBuilder: (context, elem) {
+            if (elem == 0) {
+              return Container(
+                height: 100,
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -168,11 +203,59 @@ class _SaMainViewState extends State<SaMainView> {
                     ),
                   ),
                 ),
-                child: widget.stories);
-          }
-
-          return widget.postBuilder(elem);
-        },
+                child: ListView.separated(
+                  separatorBuilder: (context, item) => SizedBox(width: 10),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 15,
+                  itemBuilder: (context, elem) => Padding(
+                    padding: EdgeInsets.all(0),
+                    child: storyBuilder(''),
+                  ),
+                ),
+              );
+            }
+            return postBuilder('');
+          },
+        ),
+      ),
+      bottomNavigationBar: SizedBox(
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Icon(
+              Icons.home,
+              size: 30,
+            ),
+            IconButton(
+              icon: Icon(Icons.search_outlined),
+              iconSize: 30,
+              onPressed: onSearchTap,
+            ),
+            IconButton(
+              icon: Icon(Icons.video_collection_outlined),
+              iconSize: 30,
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.shopping_bag_outlined),
+              iconSize: 30,
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30),
+                  ),
+                ),
+              ),
+              iconSize: 30,
+              onPressed: () {},
+            ),
+          ],
+        ),
       ),
     );
   }
